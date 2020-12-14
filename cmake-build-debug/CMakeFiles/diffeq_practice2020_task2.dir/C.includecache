@@ -1,0 +1,28 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+F:/ClionProjects/Prakt_2020/diffeq_practice2020_task2/17_1_09intf.c
+17_1_09intf.h
+F:/ClionProjects/Prakt_2020/diffeq_practice2020_task2/17_1_09intf.h
+
+F:/ClionProjects/Prakt_2020/diffeq_practice2020_task2/17_1_09intf.h
+
+F:/ClionProjects/Prakt_2020/diffeq_practice2020_task2/17_1_09main.c
+17_1_09intf.h
+F:/ClionProjects/Prakt_2020/diffeq_practice2020_task2/17_1_09intf.h
+stdlib.h
+-
+stdio.h
+-
+
+F:/ClionProjects/Prakt_2020/diffeq_practice2020_task2/17_1_09task.c
+17_1_09task.h
+F:/ClionProjects/Prakt_2020/diffeq_practice2020_task2/17_1_09task.h
+
+F:/ClionProjects/Prakt_2020/diffeq_practice2020_task2/17_1_09task.h
+
