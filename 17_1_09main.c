@@ -37,7 +37,7 @@ static char help_message[] = ""
 /**
  * This is a starting point of a program
  * @param argc - Amount of commandline arguments
- * @param argv - To distinguish between omitting one of the two arguments, use the options:
+ * @param argv - To distinguish between omitting one of the two arguments, use options:
  * >>> -i for input-file path
  * >>> -o for output-file path
  * If none were mentioned the default path's will be used
@@ -78,9 +78,23 @@ int main(int argc, char* argv[])
     }else if(err == -1){
         return err;
     }else{
-#ifndef DEFAULT_IN
 
-#endif
+#ifdef DEFAULT_IN
+#ifdef DEFAULT_OUT
+    FormOutput(DEFAULT_OUT, NULL);
+#else // ELSE DEFAULT_OUT
+    FormOutput(argv[2], NULL);
+#endif // DEFAULT_OUT
+    ParseInput(DEFAULT_IN);
+#else // ELSE DEFAULT_IN
+#ifdef DEFAULT_OUT
+    FormOutput(DEFAULT_OUT, NULL);
+#else // ELSE DEFAULT_OUT
+    FormOutput(argv[4], NULL);
+#endif // DEFAULT_OUT
+    ParseInput(argv[2]);
+#endif // DEFAULT_IN
     }
+
     return err;
 }

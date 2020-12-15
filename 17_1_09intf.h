@@ -5,14 +5,14 @@
 #ifndef DIFFEQ_PRACTICE2020_TASK2_17_1_09INTF_H
 #define DIFFEQ_PRACTICE2020_TASK2_17_1_09INTF_H
 
-#endif //DIFFEQ_PRACTICE2020_TASK2_17_1_09INTF_H
-
 typedef struct {
     char* outPath;
 }SOutput;
 
-static SOutput;
+static SOutput OutData;
 
 int ParseInput(char* inPath);
-void SaveOutput(char* outPath, double* data);
-int FormOutput();
+int FormOutput(char* outPath, double* data);
+
+#endif //DIFFEQ_PRACTICE2020_TASK2_17_1_09INTF_H
+
