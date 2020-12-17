@@ -7,18 +7,30 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define PARAM_IN "-i"
-#define PARAM_OUT "-o"
-#define PARAM_HELP "-help"
+#define STR_END '\0'
 
-static char* error_messages[] = {
+typedef enum{
+    FALSE,
+    TRUE
+}BOOL;
+
+static const char* commandline_params[] = {
+    "-i",
+    "-o",
+    "-h",
+    "-d",
+    "-e",
+    "-t"
+};
+
+static const char* error_messages[] = {
         "...",
         "Incorrect commandline arguments.\n"
-        "Please, see \"-help\" for additional information.\n",
+        "Please, see \"-h\" or \"-?\" for additional information.\n",
         ""
 };
 
-static char help_message[] = ""
+static const char help_message[] = ""
                              "Synopsis\n"
                              "========\n"
                              "\n"
@@ -34,14 +46,29 @@ static char help_message[] = ""
                              "\n"
                              "-------"
                              "If none of the parameters were specified the default ones will be used.\n";
+
 /**
- * This is a starting point of a program
+ * @brief A function that checks string's equality
+ * 
+ * @param l_str - first string
+ * @param r_str - second string
+ * 
+ * @return - TRUE or FALSE enum values whether strings equal or not
+ */
+static BOOL IsStringsEqual(const char* l_str, const char* r_str);
+
+/**
+ * @brief This is a starting point of a program
+ * 
  * @param argc - Amount of commandline arguments
- * @param argv - To distinguish between omitting one of the two arguments, use options:
- * >>> -i for input-file path
- * >>> -o for output-file path
- * If none were mentioned the default path's will be used
- * @return - Exit code
+ * @param argv - Commandline options array, possible options:
+ * @arg -i for input-file path. Default path is "./17_1_09in.txt".
+ * @arg -o for output-file path. Default path is "./17_1_09out.txt".
+ * @arg -d for enabling debug logging. Disabled by default.
+ * @arg -e for enabling error messages. Suppressed by default.
+ * @arg -t for enabling execution time at the end of execution. Disabled by default. 
+ * 
+ * @return - Exit code.
  *
  */
 int main(int argc, char* argv[])
@@ -54,7 +81,7 @@ int main(int argc, char* argv[])
 #define DEFAULT_OUT "17_1_09out.txt"
             break;
         case 2:
-            if(argv[1] == PARAM_HELP){
+            if(IsStringsEqual(argv[1], commandline_params[2])){
                 printf_s("%s", help_message);
                 err = -1;
             }else{
@@ -62,9 +89,9 @@ int main(int argc, char* argv[])
             }
             break;
         case 3:
-            if(argv[1] == PARAM_IN){
+            if(IsStringsEqual(argv[1], commandline_params[0])){
 #define DEFAULT_OUT "17_1_09out.txt"
-            }else if(argv[1] == PARAM_OUT){
+            }else if(IsStringsEqual(argv[1], commandline_params[1])){
 #define DEFAULT_IN "17_1_09in.txt"
             }else err = 1;
             break;
@@ -97,4 +124,25 @@ int main(int argc, char* argv[])
     }
 
     return err;
+}
+
+static BOOL IsStringsEqual(const char* l_str, const char* r_str)
+{
+    BOOL equal = TRUE;
+    if(l_str != NULL && r_str != NULL){
+        int i = 0;
+        while(l_str[i] != STR_END || r_str[i] != STR_END){
+            
+            equal = l_str[i] == r_str[i] ? TRUE : FALSE;
+            i++;    
+            
+            if(equal == FALSE){
+                break;
+            }
+        }
+    }else{
+        equal = FALSE;
+    }
+
+    return equal;
 }

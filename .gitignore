@@ -58,3 +58,7 @@ cmake-build-debug/
 # VSCode
 .vscode/
 build/
+
+# Docs
+doc/
+Doxyfile
