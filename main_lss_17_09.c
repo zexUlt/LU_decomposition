@@ -2,17 +2,13 @@
 // Created by ZexUlt on 14.12.2020.
 //
 
-#include "17_1_09intf.h"
+#include "lss_17_09.h"
 
 #include <stdlib.h>
 #include <stdio.h>
 
 #define STR_END '\0'
 
-typedef enum{
-    FALSE,
-    TRUE
-}BOOL;
 
 static const char* commandline_params[] = {
     "-i",
@@ -77,8 +73,8 @@ int main(int argc, char* argv[])
     int err = 0;
     switch (argc) {
         case 1:
-#define DEFAULT_IN "17_1_09in.txt"
-#define DEFAULT_OUT "17_1_09out.txt"
+#define DEFAULT_IN "lss_17_09_in.txt"
+#define DEFAULT_OUT "lss_17_09_out.txt"
             break;
         case 2:
             if(IsStringsEqual(argv[1], commandline_params[2])){
@@ -90,9 +86,9 @@ int main(int argc, char* argv[])
             break;
         case 3:
             if(IsStringsEqual(argv[1], commandline_params[0])){
-#define DEFAULT_OUT "17_1_09out.txt"
+#define DEFAULT_OUT "lss_17_09_out.txt"
             }else if(IsStringsEqual(argv[1], commandline_params[1])){
-#define DEFAULT_IN "17_1_09in.txt"
+#define DEFAULT_IN "lss_17_09_in.txt"
             }else err = 1;
             break;
         case 4:

@@ -3,4 +3,4 @@ project(diffeq_practice2020_task2 C)
 
 set(CMAKE_C_STANDARD 11)
 
-add_executable(diffeq_practice2020_task2 17_1_09main.c 17_1_09task.c 17_1_09task.h 17_1_09intf.c 17_1_09intf.h)
+add_executable(diffeq_practice2020_task2 main_lss_17_09.c lss_17_09.c lss_17_09.h)
