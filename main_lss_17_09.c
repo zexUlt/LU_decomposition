@@ -4,9 +4,6 @@
 
 #include "lss_17_09.h"
 
-#include <stdlib.h>
-#include <stdio.h>
-
 #define STR_END '\0'
 
 
