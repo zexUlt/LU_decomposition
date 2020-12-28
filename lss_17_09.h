@@ -1,12 +1,17 @@
-//
-// Created by ZexUlt on 14.12.2020.
-//
+/**
+ * @author ZexUlt
+ *
+ * Inner matrix layout:
+ * b1 b2 b3 ... bn a2 a3 a4 ... an c1 c2 c3 ... c(n-1)
+ * Where \a b's - are elements of the main diagonal, \a a's - are elements of diagonal below main, \a c's = are elements of diagonal above main
+ */
 
 #ifndef DIFFEQ_PRACTICE2020_TASK2_LSS_17_09_H
 #define DIFFEQ_PRACTICE2020_TASK2_LSS_17_09_H
 
 #include <stdio.h>
 #include <math.h>
+#include <stdlib.h>
 
 /**
  * Utility enum since C doesn't have bool-type
@@ -15,11 +20,6 @@ typedef enum{
     FALSE = 0,
     TRUE = 1
 }BOOL;
-
-/**
- * Utility typedef since C doesn't have size_t
- */
-typedef unsigned long long size_t;
 
 /**
  * Singletone structure, which stores data for output file

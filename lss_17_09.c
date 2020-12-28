@@ -9,9 +9,9 @@ static SOutput OutData;
 int ParseInput(const char* inPath)
 {
     FILE* f = NULL;
-    f = fopen(inPath, "r");
+    int err_open = fopen_s(&f, inPath, "r");
 
-    if(f != NULL){
+    if(!err_open){
         int err = fscanf_s(f, "%d", &inData.n);
 
         if(err < 0){
@@ -34,8 +34,22 @@ int lss_17_09(int n, double* A, double* B, double* X, double* tmp)
 {
     int err_code = 0;
     if(IsDecompositionPossible(A, n) == TRUE){
-        tmp[0] = A[0];
-        
+
+        for(int i = 0; i < inData.n - 1; i++){
+            A[2*n - 1 + i] /= A[i]; // gammas
+            A[i + 1] -= A[n + i + 1] * A[2*n - 1 + i]; // betas
+        }
+
+        tmp[0] = B[0] / A[0];
+        for(int i = 1; i < inData.n; i++){ // Straight pass
+            tmp[i] = (B[i] - A[n + i] * tmp[i - 1]) / A[i];
+        }
+
+        X[n - 1] = tmp[n - 1];
+        for(int i = inData.n - 2; i >= 0; i--){ // Reverse pass
+            X[i] = tmp[i] - A[2*n - 1 + i] * X[i + 1];
+        }
+
     }else{
         err_code = -1; // LU-decomposition is impossible
     }
@@ -59,7 +73,7 @@ static BOOL IsDecompositionPossible(double* A, int n)
 
 static size_t lss_memsize_17_09(int n)
 {
-    return 3*n - 2;
+    return n;
 }
 
 static BOOL NearlyEqual(double a, double b, double tol)
