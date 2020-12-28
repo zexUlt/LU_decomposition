@@ -34,6 +34,7 @@ int lss_17_09(int n, double* A, double* B, double* X, double* tmp)
 {
     int err_code = 0;
     if(IsDecompositionPossible(A, n) == TRUE){
+        tmp[0] = A[0];
         
     }else{
         err_code = -1; // LU-decomposition is impossible
