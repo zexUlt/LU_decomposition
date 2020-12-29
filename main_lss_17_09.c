@@ -6,6 +6,10 @@
 
 #define STR_END '\0'
 
+BOOL isDebugModeEnabled = FALSE;
+BOOL isEvaluationTimeNeeded = FALSE;
+BOOL SuppressErrorMessages = TRUE;
+
 
 static const char* commandline_params[] = {
     "-i",
@@ -43,10 +47,10 @@ static const char help_message[] = ""
 /**
  * @brief A function that checks string's equality
  * 
- * @param l_str - first string
- * @param r_str - second string
+ * @param l_str first string
+ * @param r_str second string
  * 
- * @return - TRUE or FALSE enum values whether strings equal or not
+ * @return @b TRUE or @b FALSE enum values whether strings equal or not
  */
 static BOOL IsStringsEqual(const char* l_str, const char* r_str);
 
@@ -55,11 +59,11 @@ static BOOL IsStringsEqual(const char* l_str, const char* r_str);
  * 
  * @param argc - Amount of commandline arguments
  * @param argv - Commandline options array, possible options:
- * @arg -i for input-file path. Default path is "./17_1_09in.txt".
- * @arg -o for output-file path. Default path is "./17_1_09out.txt".
- * @arg -d for enabling debug logging. Disabled by default.
- * @arg -e for enabling error messages. Suppressed by default.
- * @arg -t for enabling execution time at the end of execution. Disabled by default. 
+ * @arg @c -i for input-file path. Default path is @c "./17_1_09in.txt".
+ * @arg @c -o for output-file path. Default path is @c "./17_1_09out.txt".
+ * @arg @c -d for enabling debug logging. Disabled by default.
+ * @arg @c -e for enabling error messages. Suppressed by default.
+ * @arg @c -t for enabling execution time at the end of execution. Disabled by default. 
  * 
  * @return - Exit code.
  *
@@ -67,11 +71,15 @@ static BOOL IsStringsEqual(const char* l_str, const char* r_str);
 int main(int argc, char* argv[])
 {
     char* inPath, outPath;
+    const char* default_in_path = "lss_17_09_in.txt";
+    const char* default_out_path = "lss_17_09_out.txt";
+    BOOL shouldBeDefaultIn = FALSE;
+    BOOL shouldBeDefaultOut = FALSE;
     int err = 0;
     switch (argc) {
         case 1:
-#define DEFAULT_IN "lss_17_09_in.txt"
-#define DEFAULT_OUT "lss_17_09_out.txt"
+        shouldBeDefaultIn = TRUE;
+        shouldBeDefaultOut = TRUE;
             break;
         case 2:
             if(IsStringsEqual(argv[1], commandline_params[2])){
@@ -83,9 +91,9 @@ int main(int argc, char* argv[])
             break;
         case 3:
             if(IsStringsEqual(argv[1], commandline_params[0])){
-#define DEFAULT_OUT "lss_17_09_out.txt"
+                shouldBeDefaultOut = TRUE;
             }else if(IsStringsEqual(argv[1], commandline_params[1])){
-#define DEFAULT_IN "lss_17_09_in.txt"
+                shouldBeDefaultIn = TRUE;
             }else err = 1;
             break;
         case 4:
@@ -99,21 +107,21 @@ int main(int argc, char* argv[])
         return err;
     }else{
 
-#ifdef DEFAULT_IN
-#ifdef DEFAULT_OUT
-    FormOutput(DEFAULT_OUT, NULL);
-#else // ELSE DEFAULT_OUT
-    FormOutput(argv[2], NULL);
-#endif // DEFAULT_OUT
-    ParseInput(DEFAULT_IN);
-#else // ELSE DEFAULT_IN
-#ifdef DEFAULT_OUT
-    FormOutput(DEFAULT_OUT, NULL);
-#else // ELSE DEFAULT_OUT
-    FormOutput(argv[4], NULL);
-#endif // DEFAULT_OUT
-    ParseInput(argv[2]);
-#endif // DEFAULT_IN
+        if(shouldBeDefaultIn == TRUE){
+            if(shouldBeDefaultOut == TRUE){
+                FormOutput(default_out_path, NULL);
+            }else{
+                FormOutput(argv[2], NULL);
+            }
+            ParseInput(default_in_path);
+        }else{
+            if(shouldBeDefaultOut == TRUE){
+                FormOutput(default_out_path, NULL);
+            }else{
+                FormOutput(argv[4], NULL);
+            }
+            ParseInput(argv[2]);
+        }
     }
 
     return err;
