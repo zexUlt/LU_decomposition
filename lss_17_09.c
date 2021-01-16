@@ -27,7 +27,6 @@ int ParseInput(const char* inPath)
 
 int FormOutput(const char* outPath, double* data)
 {
-    SuppressErrorMessages;
     return 0;
 }
 

@@ -42,6 +42,8 @@ extern BOOL isDebugModeEnabled;
 extern BOOL isEvaluationTimeNeeded;
 /** When FALSE disables error messages in stdout */ 
 extern BOOL SuppressErrorMessages; 
+/** When TRUE calls function to print input matrix */
+extern BOOL PrintMatrix;
 
 /**
  * @brief Function parses file on given path and gets initial data
