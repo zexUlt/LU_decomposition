@@ -25,8 +25,7 @@ static const char* commandline_params[] = {
 static const char* error_messages[] = {
         "...",
         "Incorrect commandline arguments.\n"
-        "Please, see \"-h\" or \"-?\" for additional information.\n",
-        "\n"
+        "Please, see \"-h\" or \"-?\" for additional information.\n"
 };
 
 static const char help_message[] = "\n\n"
@@ -34,7 +33,7 @@ static const char help_message[] = "\n\n"
                              "========\n"
                              "\n"
                              "\n"
-                             "task2.exe <options> [parameters]\n"
+                             "./lss <options> [parameters]\n"
                              "\n"
                              "\n"
                              "Options\n"
@@ -90,64 +89,62 @@ static int StrFind(const char* in_str[], int in_str_size, const char* str_to_fin
  */
 int main(int argc, char* argv[])
 {
-    char* inPath, outPath;
+    char* inPath, *outPath;
     const char* default_in_path = "lss_17_09_in.txt";
     const char* default_out_path = "lss_17_09_out.txt";
-    BOOL shouldBeDefaultIn = FALSE;
-    BOOL shouldBeDefaultOut = FALSE;
+    BOOL shouldBeDefaultIn = TRUE;
+    BOOL shouldBeDefaultOut = TRUE;
     int err = 0;
 
-    for(int i = 0; i < sizeof(commandline_params); i++){
-        int pos = StrFind(argv, argc, commandline_params[i]);
-        if(pos != -1){
-            switch (i){
-                case 0:
-                    if(StrFind(commandline_params, sizeof(commandline_params), argv[pos + 1]) == -1){ // Assume that we have right path
-                        inPath = argv[pos + 1];
-                    }
-            }
-            {
-            case /* constant-expression */:
-                /* code */
+    for(int i = 1; i <= argc; i++){
+        int pos = StrFind(commandline_params, sizeof(commandline_params), argv[i]);
+        switch(pos){
+            case 0: // -i
+                // Test if there is filepath provided
+                int test_pos = StrFind(commandline_params, sizeof(commandline_params), argv[i+1]);
+                if(test_pos == -1){
+                    inPath = argv[++i];
+                    shouldBeDefaultIn = FALSE;
+                }else{
+                    // TODO: Error handling
+                }
                 break;
-            
+            case 1: // -o
+                int test_pos = StrFind(commandline_params, sizeof(commandline_params), argv[i+1]);
+                if(test_pos == -1){
+                    outPath = argv[++i];
+                    shouldBeDefaultOut = FALSE;
+                }else{
+                    // TODO: Error handling
+                }
+                break;
+            case 2: // -h
+                printf_s("%s", help_message);
+                err = 2;
+            case 3: // -d
+                isDebugModeEnabled = TRUE;
+                break;
+            case 4: // -e
+                SuppressErrorMessages = FALSE;
+                break;
+            case 5: // -t
+                isEvaluationTimeNeeded = TRUE;
+                break;
+            case 6: // -p
+                PrintMatrix = TRUE;
+                break;
             default:
-                break;
-            }
+                err = -1;
+                printf("%s\n", error_messages[1]);
         }
+        if(err == -1){
+            break;
+        }
+        
     }
-    // // Checking for commandline args
-    // switch (argc) {
-    //     // No input and output paths
-    //     case 1: 
-    //     shouldBeDefaultIn = TRUE;
-    //     shouldBeDefaultOut = TRUE;
-    //         break;
-    //     // Invalid number of args OR '-h' argument provided
-    //     case 2:
-    //         if(IsStringsEqual(argv[1], commandline_params[2])){
-    //             printf_s("%s", help_message);
-    //             err = -1;
-    //         }else{
-    //             err = 1;
-    //         }
-    //         break;
-    //     // Input OR output path is provided
-    //     case 3:
-    //         if(IsStringsEqual(argv[1], commandline_params[0])){
-    //             shouldBeDefaultOut = TRUE;
-    //         }else if(IsStringsEqual(argv[1], commandline_params[1])){
-    //             shouldBeDefaultIn = TRUE;
-    //         }else err = 1;
-    //         break;
-    //     // Invalid number of args
-    //     case 4:
-    //         err = 1;
-    //         break;
-    // }
-
+    
     // User made bad decision so show him up error message
-    if(err == 1){
+    if(err == 1 && SuppressErrorMessages == FALSE){
         printf_s("%s", error_messages[err]);
     }else if(err == -1){
         return err;
@@ -168,6 +165,10 @@ int main(int argc, char* argv[])
             }
             ParseInput(argv[2]);
         }
+    }
+
+    if(err == 2){ // Help option was chosen so no possible errors here. Changing err back to 0
+        err = 0;
     }
 
     return err;
