@@ -69,8 +69,8 @@ static BOOL IsStringsEqual(const char* l_str, const char* r_str);
  * @param str_to_find string which we are searching for
  * 
  * @return 
- * @arg index of @c str_to_find in @c in_str array, if success
- * @arg -1, if given string is not presented in array 
+ * @arg index of @c str_to_find in @c in_str array, if success.
+ * @arg -1, if given string is not presented in array.
  */
 static int StrFind(const char* in_str[], int in_str_size, const char* str_to_find);
 /**
@@ -97,8 +97,24 @@ int main(int argc, char* argv[])
     BOOL shouldBeDefaultOut = FALSE;
     int err = 0;
 
-    for(int i = 0; i < argc; i++){
-
+    for(int i = 0; i < sizeof(commandline_params); i++){
+        int pos = StrFind(argv, argc, commandline_params[i]);
+        if(pos != -1){
+            switch (i){
+                case 0:
+                    if(StrFind(commandline_params, sizeof(commandline_params), argv[pos + 1]) == -1){ // Assume that we have right path
+                        inPath = argv[pos + 1];
+                    }
+            }
+            {
+            case /* constant-expression */:
+                /* code */
+                break;
+            
+            default:
+                break;
+            }
+        }
     }
     // // Checking for commandline args
     // switch (argc) {
