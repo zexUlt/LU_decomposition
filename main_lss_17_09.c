@@ -96,51 +96,57 @@ int main(int argc, char* argv[])
     BOOL shouldBeDefaultOut = TRUE;
     int err = 0;
 
-    for(int i = 1; i <= argc; i++){
-        int pos = StrFind(commandline_params, sizeof(commandline_params), argv[i]);
-        switch(pos){
-            case 0: // -i
-                // Test if there is filepath provided
-                int test_pos = StrFind(commandline_params, sizeof(commandline_params), argv[i+1]);
-                if(test_pos == -1){
-                    inPath = argv[++i];
-                    shouldBeDefaultIn = FALSE;
-                }else{
-                    // TODO: Error handling
-                }
+//    printf("%s\n%s", argv[0], argv[1]);
+
+    if(argc > 1){
+        for(int i = 1; i <= argc; i++){
+            int test_pos;
+            int pos = StrFind(commandline_params, sizeof(commandline_params)/sizeof(char*), argv[i]);
+            switch(pos){
+                case 0: // -i
+                    // Test if there is filepath provided
+                    test_pos = StrFind(commandline_params, sizeof(commandline_params)/sizeof(char*), argv[i+1]);
+                    if(test_pos == -1){
+                        inPath = argv[++i];
+                        shouldBeDefaultIn = FALSE;
+                    }else{
+                        err = 1;
+                    }
+                    break;
+                case 1: // -o
+                    test_pos = StrFind(commandline_params, sizeof(commandline_params)/sizeof(char*), argv[i+1]);
+                    if(test_pos == -1){
+                        outPath = argv[++i];
+                        shouldBeDefaultOut = FALSE;
+                    }else{
+                        err = 1;
+                    }
+                    break;
+                case 2: // -h
+                    printf_s("%s", help_message);
+                    err = 2;
+                    break;
+                case 3: // -d
+                    isDebugModeEnabled = TRUE;
+                    break;
+                case 4: // -e
+                    SuppressErrorMessages = FALSE;
+                    break;
+                case 5: // -t
+                    isEvaluationTimeNeeded = TRUE;
+                    break;
+                case 6: // -p
+                    PrintMatrix = TRUE;
+                    break;
+                default:
+                    err = -1;
+                    printf("%s\n", error_messages[1]);
+            }
+            if(err == -1){
                 break;
-            case 1: // -o
-                int test_pos = StrFind(commandline_params, sizeof(commandline_params), argv[i+1]);
-                if(test_pos == -1){
-                    outPath = argv[++i];
-                    shouldBeDefaultOut = FALSE;
-                }else{
-                    // TODO: Error handling
-                }
-                break;
-            case 2: // -h
-                printf_s("%s", help_message);
-                err = 2;
-            case 3: // -d
-                isDebugModeEnabled = TRUE;
-                break;
-            case 4: // -e
-                SuppressErrorMessages = FALSE;
-                break;
-            case 5: // -t
-                isEvaluationTimeNeeded = TRUE;
-                break;
-            case 6: // -p
-                PrintMatrix = TRUE;
-                break;
-            default:
-                err = -1;
-                printf("%s\n", error_messages[1]);
+            }
+            
         }
-        if(err == -1){
-            break;
-        }
-        
     }
     
     // User made bad decision so show him up error message
