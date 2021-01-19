@@ -8,23 +8,57 @@ static SOutput OutData;
 
 int ParseInput(const char* inPath)
 {
+    LOG(Debug, "Starting parsing input file\n");
+
     FILE* f = NULL;
     int err_open = fopen_s(&f, inPath, "r");
+    int err_code = 0;
 
     if(!err_open){
         int err = fscanf_s(f, "%d", &inData.n);
 
         if(err < 0){
-            /* Read error handling */
+            LOG(Error, "Input file corrupted, does not have enough data or incorrect format.\n");
+            err_code = -2;
         }else{
             inData.A = malloc(3*inData.n*sizeof(double*));
+            err = fscanf_s(f, "%lf %lf", inData.A, (inData.A + 2*inData.n*sizeof(double*)) ); // first read to get odd line
+            if(err < 2){
+                LOG(Error, "Input file corrupted, does not have enough data or incorrect format.\n");
+                err_code = -2;
+            }else {
+                for (int i = 1; i < inData.n - 1; i++) { // reading main lines which have same pattern
+                    err = fscanf_s(f, "%lf %lf %lf", (inData.A + inData.n - 1 + i), // alpha
+                                   (inData.A + i), // beta
+                                   (inData.A + 2*inData.n - 1 + i)); // gamma
+                    if(err < 3){
+                        LOG(Error, "Input file corrupted, does not have enough data or incorrect format.\n");
+                        err_code = -2;
+                    }
+
+                    if(err_code == -2){
+                        break;
+                    }
+                }
+
+                if(err_code != -2) {
+                    err = fscanf_s(f, "%lf %lf", (inData.A + 2 * inData.n - 1), (inData.A + inData.n - 1));
+
+                    if (err < 2) {
+                        LOG(Error, "Input file corrupted, does not have enough data or incorrect format.\n");
+                        err_code = -2;
+                    }
+                }
+            }
         }
     }else{
         /* Opening error handling */
+        LOG(Error, "No such file or directory\n");
+        err_code = -1;
     }
-    return 0;
+    return err_code;
 }
-
+// TODO: Implementation
 int FormOutput(const char* outPath, double* data)
 {
     return 0;

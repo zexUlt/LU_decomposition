@@ -5,6 +5,19 @@
 #include <math.h>
 #include <stdlib.h>
 
+#define LOG(type, message) ( (type) == Debug ? \
+            (isDebugModeEnabled ? printf_s("LogMessage: %s", (message) ) : 0) : \
+            (isDebugModeEnabled ? printf_s("Error: %s", (message) ) : 0))
+
+
+/**
+ * Utility enum for logging purpose
+ */
+typedef enum{
+    Debug = 0,
+    Error = 1
+}LogType;
+
 /**
  * Utility enum since C doesn't have bool-type
  */
@@ -67,7 +80,7 @@ int FormOutput(const char* outPath, double* data);
  * @brief Function which solves system of linear equations by LU-decomposition method
  *
  * @param n Equations amount (array size).
- * @param A Flattened matrix of equation coefficients.
+ * @param A Flattened matrix of equation coefficients (@c betas, @c alphas, @c gammas).
  * @param B Free coefficients vector.
  * @param X Solution vector.
  * @param tmp Temporary memory.
