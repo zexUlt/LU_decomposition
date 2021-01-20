@@ -4,10 +4,10 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
+#include <time.h>
 
-#define LOG(type, message) ( (type) == Debug ? \
-            (isDebugModeEnabled ? printf_s("LogMessage: %s", (message) ) : 0) : \
-            (isDebugModeEnabled ? printf_s("Error: %s", (message) ) : 0))
+#define LOG(type, message) \
+            log_(type, message)
 
 
 /**
@@ -30,7 +30,7 @@ typedef enum{
  * Singletone structure, which stores data for output file
  */
 typedef struct {
-    char* outPath; /** Path to output file */
+    char outPath[255]; /** Path to output file */
     int err_code; /** Execution code */
     double* X; /** Solution vector */
 }SOutput;
@@ -64,16 +64,18 @@ extern BOOL PrintMatrix;
  * @param inPath Path to input file
  * @return Error code
  */
-int ParseInput(const char* inPath);
+void ParseInput(const char* inPath);
 
 /**
  * @brief Function forms output of the program and writes it to the file on given path
  *
  * @param outPath Path to the output file
  * @param data
- * @return Error code
+ * @return
+ * @arg 0, if solution found
+ * @arg -1, otherwise
  */
-int FormOutput(const char* outPath, double* data);
+void FormOutput(const char* outPath, double* data, int err);
 
 
 /**
@@ -130,6 +132,29 @@ static BOOL IsDecompositionPossible(double* A, int n);
  * @return @b TRUE or @b FALSE
  */ 
 static BOOL NearlyEqual(double a, double b, double tolerance);
+
+
+/**
+ * @brief Decorator-function for initial data preparation
+ *
+ * @return Error code
+ */
+void lss_main();
+
+/**
+ * @brief Wrapper-function for logging
+ *
+ * @param mode
+ * @arg @c Debug - for debug messages
+ * @arg @c Error - for error messages
+ * @param msg message to show
+ */
+void log_(LogType mode, const char* msg);
+
+/**
+ * @brief Function executes @c free() for each memory block which has been allocated during execution
+ */
+static void ReleaseMemory();
 
 #endif //DIFFEQ_PRACTICE2020_TASK2_LSS_17_09_H
 
