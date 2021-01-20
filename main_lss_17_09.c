@@ -89,6 +89,8 @@ static int StrFind(const char* in_str[], int in_str_size, const char* str_to_fin
  */
 int main(int argc, char* argv[])
 {
+    clock_t start = clock();
+
     char* inPath, *outPath;
     const char* default_in_path = "lss_17_09_in.txt";
     const char* default_out_path = "lss_17_09_out.txt";
@@ -99,7 +101,7 @@ int main(int argc, char* argv[])
 //    printf("%s\n%s", argv[0], argv[1]);
 
     if(argc > 1){
-        for(int i = 1; i <= argc; i++){
+        for(int i = 1; i < argc; i++){
             int test_pos;
             int pos = StrFind(commandline_params, sizeof(commandline_params)/sizeof(char*), argv[i]);
             switch(pos){
@@ -158,24 +160,34 @@ int main(int argc, char* argv[])
         // err set to 0. So checking if default paths are needed
         if(shouldBeDefaultIn == TRUE){
             if(shouldBeDefaultOut == TRUE){
-                FormOutput(default_out_path, NULL);
+                sprintf(OutData.outPath, "%s", default_out_path);
             }else{
-                FormOutput(argv[2], NULL);
+                sprintf(OutData.outPath, "%s", outPath);
             }
             ParseInput(default_in_path);
         }else{
             if(shouldBeDefaultOut == TRUE){
-                FormOutput(default_out_path, NULL);
+                sprintf(OutData.outPath, "%s", default_out_path);
             }else{
-                FormOutput(argv[4], NULL);
+                sprintf(OutData.outPath, "%s", outPath);
             }
-            ParseInput(argv[2]);
+            ParseInput(inPath);
         }
+
+        lss_main();
     }
 
     if(err == 2){ // Help option was chosen so no possible errors here. Changing err back to 0
         err = 0;
     }
+
+    clock_t end = clock();
+
+    char buff[255];
+
+    double time = (double) (end - start) / CLOCKS_PER_SEC;
+    snprintf(buff, 255, "Total execution time %.2lf sec\n", time);
+    LOG(Debug, buff);
 
     return err;
 }
