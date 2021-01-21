@@ -152,8 +152,8 @@ int main(int argc, char* argv[])
     }
     
     // User made bad decision so show him up error message
-    if(err == 1 && SuppressErrorMessages == FALSE){
-        printf_s("%s", error_messages[err]);
+    if(err == 1){
+        LOG(Error, error_messages[err]);
     }else if(err == -1){
         return err;
     }else{

@@ -94,7 +94,7 @@ void FormOutput(const char* outPath, double* data, int err)
         }
     }
 
-    LOG(Debug, "Output formed. Terminating...");
+    LOG(Debug, "Output formed. Terminating...\n");
 }
 
 void lss_main()
@@ -118,6 +118,9 @@ int lss_17_09(int n, double* A, double* B, double* X, double* tmp)
     int err_code = 0;
     if(IsDecompositionPossible(A, n) == TRUE){
         LOG(Debug, "LU-decomposition is possible. Decomposing...\n");
+
+        clock_t start = clock();
+
         for(int i = 0; i < inData.n - 1; i++){
             A[2*n - 1 + i] /= A[i]; // gammas
             A[i + 1] -= A[n + i + 1] * A[2*n - 1 + i]; // betas
@@ -135,6 +138,12 @@ int lss_17_09(int n, double* A, double* B, double* X, double* tmp)
             X[i] = tmp[i] - A[2*n - 1 + i] * X[i + 1];
         }
         LOG(Debug, "Reverse pass finished\n");
+
+        clock_t end = clock();
+        double time = (double) (end - start) / CLOCKS_PER_SEC;
+        char buff[255];
+        sprintf(buff, "LSE solution finished in %.2lf\n", time);
+        LOG(Debug, buff);
     }else{
         LOG(Debug, "LU-decomposition is impossible\n");
         err_code = -1; // LU-decomposition is impossible
