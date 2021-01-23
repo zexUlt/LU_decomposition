@@ -11,6 +11,8 @@ BOOL isEvaluationTimeNeeded = FALSE;
 BOOL SuppressErrorMessages = TRUE;
 BOOL PrintMatrix = FALSE;
 
+SOutput OutData = {0};
+
 
 static const char* commandline_params[] = {
     "-i", // 0
@@ -72,21 +74,7 @@ static BOOL IsStringsEqual(const char* l_str, const char* r_str);
  * @arg -1, if given string is not presented in array.
  */
 static int StrFind(const char* in_str[], int in_str_size, const char* str_to_find);
-/**
- * @brief This is a starting point of a program
- * 
- * @param argc - Amount of commandline arguments
- * @param argv - Commandline options array, possible options:
- * @arg @c -i for input-file path. Default path is @c "./17_1_09in.txt".
- * @arg @c -o for output-file path. Default path is @c "./17_1_09out.txt".
- * @arg @c -d for enabling debug logging. Disabled by default.
- * @arg @c -e for enabling error messages. Suppressed by default.
- * @arg @c -t for enabling execution time at the end of execution. Disabled by default. 
- * @arg @c -p for printing input matrix at the startup
- * 
- * @return - Exit code.
- *
- */
+
 int main(int argc, char* argv[])
 {
     clock_t start = clock();

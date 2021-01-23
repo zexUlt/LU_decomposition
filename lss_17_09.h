@@ -6,9 +6,16 @@
 #include <stdlib.h>
 #include <time.h>
 
+/**
+ * Logger macro
+ */
 #define LOG(type, message) \
             log_(type, message)
 
+
+#define ALPHA inData.n
+#define BETA 0
+#define GAMMA (2*inData.n - 1)
 
 /**
  * Utility enum for logging purpose
@@ -30,21 +37,27 @@ typedef enum{
  * Singletone structure, which stores data for output file
  */
 typedef struct {
-    char outPath[255]; /** Path to output file */
-    int err_code; /** Execution code */
-    double* X; /** Solution vector */
+    /** Path to output file */
+    char outPath[255];
+    /** Execution code */
+    int err_code;
+    /** Solution vector */
+    double* X;
 }SOutput;
 
-static SOutput OutData;
+extern SOutput OutData;
 
 /**
  * Singletone structure, which stores data from input file
  */
 typedef struct 
 {
-    int n; /** Equation amount */
-    double* A; /** Matrix of linear system's coefficients */
-    double* B; /** Vector of free coefficients */
+    /** Equation amount */
+    int n;
+    /** Matrix of linear system's coefficients */
+    double* A;
+    /** Vector of free coefficients */
+    double* B;
 }SInput;
 
 static SInput inData;
@@ -62,18 +75,15 @@ extern BOOL PrintMatrix;
  * @brief Function parses file on given path and gets initial data
  *
  * @param inPath Path to input file
- * @return Error code
  */
 void ParseInput(const char* inPath);
 
 /**
- * @brief Function forms output of the program and writes it to the file on given path
+ * @brief Function forms output of the program and writes it to the file on given path. If solution of the equation system
+ * was found it prints answer vector to the file. If not - it writes 0 to file.
  *
  * @param outPath Path to the output file
  * @param data
- * @return
- * @arg 0, if solution found
- * @arg -1, otherwise
  */
 void FormOutput(const char* outPath, double* data, int err);
 
@@ -155,6 +165,11 @@ void log_(LogType mode, const char* msg);
  * @brief Function executes @c free() for each memory block which has been allocated during execution
  */
 static void ReleaseMemory();
+
+/**
+ * @brief Fuction prints input matrix if @c PrintMatrix is set to @c TRUE
+ */
+static void printMatrix();
 
 #endif //DIFFEQ_PRACTICE2020_TASK2_LSS_17_09_H
 

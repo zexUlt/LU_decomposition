@@ -4,7 +4,21 @@
 
 #include "lss_17_09.h"
 
-static SOutput OutData;
+
+/*     0 1 2 3 4
+ * 0 | b c 0 0 0
+ * 1 | a b c 0 0
+ * 2 | 0 a b c 0
+ * 3 | 0 0 a b c
+ * 4 | 0 0 0 a b
+ * 0 1 2 3 4 5 6 7 8 9 10 11 12
+ * b b b b b a a a a c  c  c  c
+ *
+ * n = 5
+ * b -> [0, n - 1]
+ * a -> [n, 2n - 2]
+ * c -> [2n - 1, 3n - 3]
+ */
 
 void ParseInput(const char* inPath)
 {
@@ -18,22 +32,23 @@ void ParseInput(const char* inPath)
     if(!err_open){
         int err = fscanf(f, "%d", &inData.n);
 
-        if(err < 0){
+        if(err < 1){
             LOG(Error, "Input file corrupted, does not have enough data or incorrect format.\n");
             exit(-2);
         }else{
-            inData.A = malloc(3*inData.n*sizeof(double*));
+            inData.A = malloc((3*inData.n - 2)*sizeof(double*));
             inData.B = malloc(inData.n*sizeof(double*));
-            err = fscanf(f, "%lf %lf", inData.A, (inData.A + 2*inData.n*sizeof(double*)) ); // first read to get odd line
+            err = fscanf(f, "%lf %lf", inData.A + BETA, (inData.A + GAMMA) ); // first read to get odd line
+
             if(err < 2){
                 LOG(Error, "Input file corrupted, does not have enough data or incorrect format.\n");
                 fclose(f);
                 exit(-2);
             }else {
                 for (int i = 1; i < inData.n - 1; i++) { // reading main lines which have same pattern
-                    err = fscanf(f, "%lf %lf %lf", (inData.A + inData.n - 1 + i), // alpha
-                                   (inData.A + i), // beta
-                                   (inData.A + 2*inData.n - 1 + i)); // gamma
+                    err = fscanf(f, "%lf %lf %lf", (inData.A + ALPHA + i - 1), // alpha
+                                   (inData.A + BETA + i), // beta
+                                   (inData.A + GAMMA + i)); // gamma
                     if(err < 3){
                         LOG(Error, "Input file corrupted, does not have enough data or incorrect format.\n");
                         fclose(f);
@@ -41,7 +56,7 @@ void ParseInput(const char* inPath)
                     }
                 }
 
-                err = fscanf(f, "%lf %lf", (inData.A + 2 * inData.n - 1), (inData.A + inData.n - 1));
+                err = fscanf(f, "%lf %lf", (inData.A + 2 * inData.n - 2), (inData.A + BETA + inData.n - 1));
 
                 if (err < 2) {
                     LOG(Error, "Input file corrupted, does not have enough data or incorrect format.\n");
@@ -100,6 +115,10 @@ void FormOutput(const char* outPath, double* data, int err)
 void lss_main()
 {
     LOG(Debug, "Entering lss_main\n");
+
+    if(PrintMatrix == TRUE){
+        printMatrix();
+    }
 
     size_t size = lss_memsize_17_09(inData.n);
 
@@ -197,3 +216,37 @@ void ReleaseMemory()
     free(inData.B);
     free(OutData.X);
 }
+
+static void printMatrix()
+{
+    LOG(Debug, "Printing matrix...\n");
+    printf("%1.2lf %1.2lf ", inData.A[BETA], inData.A[GAMMA]);
+    for(int i = 0; i < inData.n - 2; i++){
+        printf("%1.2lf ", 0);
+        }
+
+    printf("\n");
+
+    int bias = 0;
+    for(int i = 1; i < inData.n - 1; i++){
+        for(int k = 0; k < bias; k++){
+            printf("%1.2lf ", 0);
+        }
+
+        printf("%1.2lf %1.2lf %1.2lf ", inData.A[ALPHA + i], inData.A[BETA + i], inData.A[GAMMA + i]);
+        for(int j = bias; j < inData.n - 3; j++){
+            printf("%1.2lf ", 0);
+        }
+        bias++;
+        printf("\n");
+    }
+
+    for(int i = 0; i < inData.n - 2; i++){
+        printf("%1.2lf ", 0);
+    }
+    printf("%1.2lf %1.2lf\n", inData.A[2*inData.n - 2], inData.A[inData.n - 1]);
+}
+
+// a -> [n, 2n-2] (n-1)
+// b -> [0, n-1] (n)
+// c -> [2n-1, 3n-2] (n-1)
