@@ -12,10 +12,18 @@
 #define LOG(type, message) \
             log_(type, message)
 
-
+/** Helper macro definition for addressing in flattened matrix for alpha coefficient */
 #define ALPHA inData.n
+/** Helper macro definition for addressing in flattened matrix for beta coefficient */
 #define BETA 0
+/** Helper macro definition for addressing in flattened matrix for gamma coefficient */
 #define GAMMA (2*inData.n - 1)
+
+
+#define INCORRECT_ARGS 2
+#define FILE_CORRUPTED 3
+#define NO_FILE 4
+
 
 /**
  * Utility enum for logging purpose
@@ -38,9 +46,9 @@ typedef enum{
  */
 typedef struct {
     /** Path to output file */
-    char outPath[255];
+    char outPath[100];
     /** Execution code */
-    int err_code;
+    short err_code;
     /** Solution vector */
     double* X;
 }SOutput;
@@ -85,7 +93,7 @@ void ParseInput(const char* inPath);
  * @param outPath Path to the output file
  * @param data
  */
-void FormOutput(const char* outPath, double* data, int err);
+void FormOutput(const char* outPath, double* data, short err);
 
 
 /**

@@ -15,13 +15,11 @@ SOutput OutData = {0};
 
 
 static const char* commandline_params[] = {
-    "-i", // 0
-    "-o", // 1
-    "-h", // 2
-    "-d", // 3
-    "-e", // 4
-    "-t", // 5
-    "-p" // 6
+    "-h", // 0
+    "-d", // 1
+    "-e", // 2
+    "-t", // 3
+    "-p" // 4
 };
 
 static const char* error_messages[] = {
@@ -41,8 +39,6 @@ static const char help_message[] = "\n\n"
                              "Options\n"
                              "=======\n"
                              "\n"
-                             "-i -- Specifies input file path\n"
-                             "-o -- Specifies output file path\n"
                              "-h -- Shows list of available commands\n"
                              "-e -- Enables error messages during execution\n"
                              "-t -- Shows execution time at the end of execution\n"
@@ -73,93 +69,94 @@ static BOOL IsStringsEqual(const char* l_str, const char* r_str);
  * @arg index of @c str_to_find in @c in_str array, if success.
  * @arg -1, if given string is not presented in array.
  */
-static int StrFind(const char* in_str[], int in_str_size, const char* str_to_find);
+static short StrFind(const char* in_str[], int in_str_size, const char* str_to_find);
 
 int main(int argc, char* argv[])
 {
     clock_t start = clock();
 
-    char* inPath, *outPath;
-    const char* default_in_path = "lss_17_09_in.txt";
-    const char* default_out_path = "lss_17_09_out.txt";
-    BOOL shouldBeDefaultIn = TRUE;
+    char inPath, outPath;
     BOOL shouldBeDefaultOut = TRUE;
-    int err = 0;
+    BOOL shouldBeDefaultIn = FALSE;
+    short err = 0;
 
-//    printf("%s\n%s", argv[0], argv[1]);
 
     if(argc > 1){
         for(int i = 1; i < argc; i++){
-            int test_pos;
-            int pos = StrFind(commandline_params, sizeof(commandline_params)/sizeof(char*), argv[i]);
-            switch(pos){
-                case 0: // -i
-                    // Test if there is filepath provided
-                    test_pos = StrFind(commandline_params, sizeof(commandline_params)/sizeof(char*), argv[i+1]);
-                    if(test_pos == -1){
-                        inPath = argv[++i];
-                        shouldBeDefaultIn = FALSE;
-                    }else{
-                        err = 1;
+            BOOL isParsingFilePath = FALSE;
+            short pos = StrFind(commandline_params, sizeof(commandline_params)/sizeof(char*), argv[i]);
+            short pos_counter = 0;
+            switch(i){
+                case 1:
+                    if(pos == -1){
+                        inPath = i;
+                        pos_counter++;
+                        isParsingFilePath = TRUE;
                     }
                     break;
-                case 1: // -o
-                    test_pos = StrFind(commandline_params, sizeof(commandline_params)/sizeof(char*), argv[i+1]);
-                    if(test_pos == -1){
-                        outPath = argv[++i];
-                        shouldBeDefaultOut = FALSE;
-                    }else{
-                        err = 1;
+                case 2:
+                    if(pos == -1){
+                        if(pos_counter == 0){
+                            outPath = i;
+                            shouldBeDefaultOut = FALSE;
+                            isParsingFilePath = TRUE;
+                        }else{
+                            err = 1;
+                        }
                     }
-                    break;
-                case 2: // -h
-                    printf_s("%s", help_message);
-                    err = 2;
-                    break;
-                case 3: // -d
-                    isDebugModeEnabled = TRUE;
-                    break;
-                case 4: // -e
-                    SuppressErrorMessages = FALSE;
-                    break;
-                case 5: // -t
-                    isEvaluationTimeNeeded = TRUE;
-                    break;
-                case 6: // -p
-                    PrintMatrix = TRUE;
+
                     break;
                 default:
-                    err = -1;
-                    printf("%s\n", error_messages[1]);
+                    break;
             }
-            if(err == -1){
+            if(isParsingFilePath == FALSE) {
+                switch (pos) {
+                    case 0: // -h
+                        printf("%s", help_message);
+                        err = 2;
+                        break;
+                    case 1: // -d
+                        isDebugModeEnabled = TRUE;
+                        break;
+                    case 2: // -e
+                        SuppressErrorMessages = FALSE;
+                        break;
+                    case 3: // -t
+                        isEvaluationTimeNeeded = TRUE;
+                        break;
+                    case 4: // -p
+                        PrintMatrix = TRUE;
+                        break;
+                    default:
+                        err = -1;
+                        printf("%s\n", error_messages[1]);
+                }
+            }
+            if (err == -1) {
                 break;
             }
-            
+
         }
+    }else{
+        shouldBeDefaultOut = TRUE;
+        shouldBeDefaultIn = TRUE;
     }
     
     // User made bad decision so show him up error message
-    if(err == 1){
+    if(err == -1){
         LOG(Error, error_messages[err]);
-    }else if(err == -1){
-        return err;
+        exit(INCORRECT_ARGS);
     }else{
         // err set to 0. So checking if default paths are needed
-        if(shouldBeDefaultIn == TRUE){
-            if(shouldBeDefaultOut == TRUE){
-                sprintf(OutData.outPath, "%s", default_out_path);
-            }else{
-                sprintf(OutData.outPath, "%s", outPath);
-            }
-            ParseInput(default_in_path);
+        if(shouldBeDefaultOut == TRUE){
+            sprintf(OutData.outPath, "%s", "lss_00_00_out.txt");
         }else{
-            if(shouldBeDefaultOut == TRUE){
-                sprintf(OutData.outPath, "%s", default_out_path);
-            }else{
-                sprintf(OutData.outPath, "%s", outPath);
-            }
-            ParseInput(inPath);
+            sprintf(OutData.outPath, "%s", argv[outPath]);
+        }
+        if(shouldBeDefaultIn == TRUE){
+            ParseInput("lss_00_00_in.txt");
+        }else{
+            ParseInput(argv[inPath]);
         }
 
         lss_main();
@@ -171,12 +168,10 @@ int main(int argc, char* argv[])
 
     clock_t end = clock();
 
-    char buff[255];
-
-    double time = (double) (end - start) / CLOCKS_PER_SEC;
-    snprintf(buff, 255, "Total execution time %.2lf sec\n", time);
-    LOG(Debug, buff);
-
+    if(isEvaluationTimeNeeded == TRUE) {
+        float time = (float) (end - start) / CLOCKS_PER_SEC;
+        printf("Total execution time %.2f sec\n", time);
+    }
     return err;
 }
 
@@ -184,7 +179,7 @@ static BOOL IsStringsEqual(const char* l_str, const char* r_str)
 {
     BOOL equal = TRUE;
     if(l_str != NULL && r_str != NULL){
-        int i = 0;
+        short i = 0;
         while(l_str[i] != STR_END || r_str[i] != STR_END){
             
             equal = l_str[i] == r_str[i] ? TRUE : FALSE;
@@ -201,9 +196,9 @@ static BOOL IsStringsEqual(const char* l_str, const char* r_str)
     return equal;
 }
 
-static int StrFind(const char* in_str[], int in_str_size, const char* str_to_find)
+static short StrFind(const char* in_str[], int in_str_size, const char* str_to_find)
 {
-    int result = -1;
+    short result = -1;
     for(int i = 0; i < in_str_size; i++){
         if(IsStringsEqual(in_str[i], str_to_find) == TRUE){
             result = i;

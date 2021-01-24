@@ -5,36 +5,20 @@
 #include "lss_17_09.h"
 
 
-/*     0 1 2 3 4
- * 0 | b c 0 0 0
- * 1 | a b c 0 0
- * 2 | 0 a b c 0
- * 3 | 0 0 a b c
- * 4 | 0 0 0 a b
- * 0 1 2 3 4 5 6 7 8 9 10 11 12
- * b b b b b a a a a c  c  c  c
- *
- * n = 5
- * b -> [0, n - 1]
- * a -> [n, 2n - 2]
- * c -> [2n - 1, 3n - 3]
- */
-
 void ParseInput(const char* inPath)
 {
     LOG(Debug, "Starting parsing input file\n");
 
     clock_t start = clock();
+    int i;
+    FILE* f = fopen(inPath, "r");
 
-    FILE* f = NULL;
-    int err_open = fopen_s(&f, inPath, "r");
-
-    if(!err_open){
+    if(f != NULL){
         int err = fscanf(f, "%d", &inData.n);
 
         if(err < 1){
             LOG(Error, "Input file corrupted, does not have enough data or incorrect format.\n");
-            exit(-2);
+            exit(FILE_CORRUPTED);
         }else{
             inData.A = malloc((3*inData.n - 2)*sizeof(double*));
             inData.B = malloc(inData.n*sizeof(double*));
@@ -43,16 +27,16 @@ void ParseInput(const char* inPath)
             if(err < 2){
                 LOG(Error, "Input file corrupted, does not have enough data or incorrect format.\n");
                 fclose(f);
-                exit(-2);
+                exit(FILE_CORRUPTED);
             }else {
-                for (int i = 1; i < inData.n - 1; i++) { // reading main lines which have same pattern
+                for (i = 1; i < inData.n - 1; i++) { // reading main lines which have same pattern
                     err = fscanf(f, "%lf %lf %lf", (inData.A + ALPHA + i - 1), // alpha
                                    (inData.A + BETA + i), // beta
                                    (inData.A + GAMMA + i)); // gamma
                     if(err < 3){
                         LOG(Error, "Input file corrupted, does not have enough data or incorrect format.\n");
                         fclose(f);
-                        exit(-2);
+                        exit(FILE_CORRUPTED);
                     }
                 }
 
@@ -61,17 +45,17 @@ void ParseInput(const char* inPath)
                 if (err < 2) {
                     LOG(Error, "Input file corrupted, does not have enough data or incorrect format.\n");
                     fclose(f);
-                    exit(-2);
+                    exit(FILE_CORRUPTED);
                 }
 
 
-                for(int i = 0; i < inData.n; i++){
+                for(i = 0; i < inData.n; i++){
                     err = fscanf(f, "%lf", (inData.B + i) );
 
                     if(err < 1){
                         LOG(Error, "Input file corrupted, does not have enough data or incorrect format.\n");
                         fclose(f);
-                        exit(-2);
+                        exit(FILE_CORRUPTED);
                     }
                 }
             }
@@ -80,29 +64,28 @@ void ParseInput(const char* inPath)
         /* Opening error handling */
         LOG(Error, "No such file or directory\n");
         fclose(f);
-        exit(-1);
+        exit(NO_FILE);
     }
 
     fclose(f);
 
-    char buff[255];
+    char buff[50];
     clock_t end = clock() - start;
 
     double time = (double) (end - start) / CLOCKS_PER_SEC;
-    snprintf(buff, 255, "ParseInput finished  %.2lf sec\n", time);
+    snprintf(buff, 50, "ParseInput finished  %.2lf sec\n", time);
     LOG(Debug, buff);
 }
 // TODO: Implementation
-void FormOutput(const char* outPath, double* data, int err)
+void FormOutput(const char* outPath, double* data, short err)
 {
     LOG(Debug, "Forming output...\n");
-    FILE* fptr = NULL;
-    fopen_s(&fptr, outPath, "w");
+    FILE* fptr = fopen(outPath, "w");
 
     if(err == -1){
         fprintf(fptr, "%d", 0);
     }else{
-        fprintf(fptr, "%d", inData.n);
+        fprintf(fptr, "%d\n", inData.n);
 
         for(int i = 0; i < inData.n; i++){
             fprintf(fptr, "%1.9lf\n", data[i]);
@@ -141,14 +124,14 @@ int lss_17_09(int n, double* A, double* B, double* X, double* tmp)
         clock_t start = clock();
 
         for(int i = 0; i < inData.n - 1; i++){
-            A[2*n - 1 + i] /= A[i]; // gammas
-            A[i + 1] -= A[n + i + 1] * A[2*n - 1 + i]; // betas
+            A[GAMMA + i] /= A[BETA + i]; // gammas
+            A[BETA + i + 1] -= A[ALPHA + i] * A[GAMMA + i]; // betas
         }
 
         LOG(Debug, "Straight pass part started...\n");
         tmp[0] = B[0] / A[0];
         for(int i = 1; i < inData.n; i++){ // Straight pass
-            tmp[i] = (B[i] - A[n + i] * tmp[i - 1]) / A[i];
+            tmp[i] = (B[i] - A[ALPHA + i - 1] * tmp[i - 1]) / A[BETA + i];
         }
         LOG(Debug, "Straight pass finished\n");
         LOG(Debug, "Reverse pass part started...\n");
@@ -175,9 +158,9 @@ static BOOL IsDecompositionPossible(double* A, int n)
     LOG(Debug, "Checking if LU-decomposition even possible...\n");
     BOOL exists = TRUE;
 
-    for(int i = 0, j = 0; i < n && j < n - 1; i++, j++){
-        exists = ( (fabs(A[i]) >= fabs(A[n + j] + A[2*n - 1 + j])) &&
-                NearlyEqual(A[2*n - 1 + j], 0, 1e-6) == FALSE) ? TRUE : FALSE;
+    for(int i = 1, j = 0; i < n - 1 && j < n - 1; i++, j++){
+        exists = ( (fabs(A[BETA + i]) >= fabs(A[ALPHA + j]) + fabs(A[GAMMA + j])) ); // &&
+              //  NearlyEqual(fabs(A[ALPHA + j]), 0, 1e-6) == FALSE) ? TRUE : FALSE;
 
         if(exists == FALSE){
             break;
@@ -201,7 +184,7 @@ void log_(LogType mode, const char* msg)
 {
     if(mode == Debug){
         if(isDebugModeEnabled == TRUE){
-            printf_s("LogMessage: %s", msg);
+            printf("LogMessage: %s", msg);
         }
     }else{
         if(SuppressErrorMessages == FALSE){
@@ -220,9 +203,9 @@ void ReleaseMemory()
 static void printMatrix()
 {
     LOG(Debug, "Printing matrix...\n");
-    printf("%1.2lf %1.2lf ", inData.A[BETA], inData.A[GAMMA]);
+    printf("%+1.9lf %+1.9lf ", inData.A[BETA], inData.A[GAMMA]);
     for(int i = 0; i < inData.n - 2; i++){
-        printf("%1.2lf ", 0);
+        printf("%+1.9lf ", 0.f);
         }
 
     printf("\n");
@@ -230,21 +213,21 @@ static void printMatrix()
     int bias = 0;
     for(int i = 1; i < inData.n - 1; i++){
         for(int k = 0; k < bias; k++){
-            printf("%1.2lf ", 0);
+            printf("%+1.9lf ", 0.f);
         }
 
-        printf("%1.2lf %1.2lf %1.2lf ", inData.A[ALPHA + i], inData.A[BETA + i], inData.A[GAMMA + i]);
+        printf("%+1.9lf %+1.9lf %+1.9lf ", inData.A[ALPHA + i - 1], inData.A[BETA + i], inData.A[GAMMA + i]);
         for(int j = bias; j < inData.n - 3; j++){
-            printf("%1.2lf ", 0);
+            printf("%+1.9lf ", 0.f);
         }
         bias++;
         printf("\n");
     }
 
     for(int i = 0; i < inData.n - 2; i++){
-        printf("%1.2lf ", 0);
+        printf("%+1.9lf ", 0.f);
     }
-    printf("%1.2lf %1.2lf\n", inData.A[2*inData.n - 2], inData.A[inData.n - 1]);
+    printf("%+1.9lf %+1.9lf\n", inData.A[2*inData.n - 2], inData.A[inData.n - 1]);
 }
 
 // a -> [n, 2n-2] (n-1)
